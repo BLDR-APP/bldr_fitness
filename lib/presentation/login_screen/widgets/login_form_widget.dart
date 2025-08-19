@@ -164,7 +164,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('Bem-vindo!',
+                  Text('Bem-Vindo!',
                       style: AppTheme.darkTheme.textTheme.headlineSmall
                           ?.copyWith(
                               color: AppTheme.textPrimary,
