@@ -25,7 +25,7 @@ class FeaturedWorkoutsWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Featured Workouts',
+          'Treinos em Destaque',
           style: AppTheme.darkTheme.textTheme.titleLarge?.copyWith(
             color: AppTheme.textPrimary,
             fontWeight: FontWeight.w600,
@@ -188,13 +188,13 @@ class FeaturedWorkoutsWidget extends StatelessWidget {
 
   String _getWorkoutTypeIcon(String? workoutType) {
     switch (workoutType) {
-      case 'strength':
+      case 'força':
         return 'fitness_center';
-      case 'cardio':
+      case 'hiit':
         return 'directions_run';
-      case 'flexibility':
+      case 'mobilidade':
         return 'accessibility';
-      case 'sports':
+      case 'esportes':
         return 'sports_martial_arts';
       default:
         return 'fitness_center';

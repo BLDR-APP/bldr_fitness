@@ -97,7 +97,7 @@ class WorkoutCardWidget extends StatelessWidget {
                 ),
                 SizedBox(width: 2.w),
                 _buildInfoChip(
-                  'Level ${workout['difficulty_level'] ?? 1}',
+                  'Nível ${workout['difficulty_level'] ?? 1}',
                   Icons.star,
                   AppTheme.accentGold,
                 ),
@@ -153,11 +153,11 @@ class WorkoutCardWidget extends StatelessWidget {
     switch (workoutType) {
       case 'strength':
         return 'fitness_center';
-      case 'cardio':
+      case 'hiit':
         return 'directions_run';
-      case 'flexibility':
+      case 'mobilidade':
         return 'accessibility';
-      case 'sports':
+      case 'esportes':
         return 'sports_martial_arts';
       default:
         return 'fitness_center';
@@ -168,11 +168,11 @@ class WorkoutCardWidget extends StatelessWidget {
     switch (workoutType) {
       case 'strength':
         return AppTheme.accentGold;
-      case 'cardio':
+      case 'hiit':
         return AppTheme.errorRed;
-      case 'flexibility':
+      case 'mobilidade':
         return AppTheme.successGreen;
-      case 'sports':
+      case 'esportes':
         return AppTheme.warningAmber;
       default:
         return AppTheme.accentGold;

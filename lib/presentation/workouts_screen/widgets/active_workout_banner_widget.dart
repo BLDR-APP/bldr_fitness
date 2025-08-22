@@ -175,18 +175,18 @@ class _ActiveWorkoutBannerWidgetState extends State<ActiveWorkoutBannerWidget>
                     builder: (context) => AlertDialog(
                       backgroundColor: AppTheme.cardDark,
                       title: Text(
-                        'End Workout?',
+                        'Finalizar treino?',
                         style: TextStyle(color: AppTheme.textPrimary),
                       ),
                       content: Text(
-                        'Are you sure you want to end this workout?',
+                        'Você tem certeza que deseja finalizar o treino?',
                         style: TextStyle(color: AppTheme.textSecondary),
                       ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context),
                           child: Text(
-                            'Cancel',
+                            'Cancelar',
                             style: TextStyle(color: AppTheme.textSecondary),
                           ),
                         ),
@@ -195,14 +195,14 @@ class _ActiveWorkoutBannerWidgetState extends State<ActiveWorkoutBannerWidget>
                             Navigator.pop(context);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text('Workout completed!'),
+                                content: Text('Treino concluído!'),
                                 backgroundColor: AppTheme.successGreen,
                                 behavior: SnackBarBehavior.floating,
                               ),
                             );
                           },
                           child: Text(
-                            'End Workout',
+                            'Finalizar treino',
                             style: TextStyle(color: AppTheme.errorRed),
                           ),
                         ),

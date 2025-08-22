@@ -37,7 +37,7 @@ class WaterIntakeWidget extends StatelessWidget {
               ),
               SizedBox(width: 3.w),
               Text(
-                'Water Intake',
+                'Hidratação',
                 style: AppTheme.darkTheme.textTheme.titleMedium?.copyWith(
                   color: AppTheme.textPrimary,
                   fontWeight: FontWeight.w600,
@@ -80,14 +80,14 @@ class WaterIntakeWidget extends StatelessWidget {
           Row(
             children: [
               Text(
-                'Target: ${(dailyTarget / 1000).toStringAsFixed(1)}L',
+                'Meta: ${(dailyTarget / 1000).toStringAsFixed(1)}L',
                 style: AppTheme.darkTheme.textTheme.bodySmall?.copyWith(
                   color: AppTheme.textSecondary,
                 ),
               ),
               Spacer(),
               Text(
-                '${((dailyTarget - intake) / 1000).toStringAsFixed(1)}L left',
+                '${((dailyTarget - intake) / 1000).toStringAsFixed(1)}L restantes',
                 style: AppTheme.darkTheme.textTheme.bodySmall?.copyWith(
                   color: AppTheme.textSecondary,
                 ),

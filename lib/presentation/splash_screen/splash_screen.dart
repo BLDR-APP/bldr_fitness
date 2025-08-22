@@ -315,31 +315,17 @@ class _SplashScreenState extends State<SplashScreen>
       children: [
         // BLDR logo container with gold accent border
         Container(
-          width: 25.w,
-          height: 25.w,
+          padding: EdgeInsets.all(16), // espaço interno
           decoration: BoxDecoration(
             color: AppTheme.surfaceDark,
             shape: BoxShape.circle,
-            border: Border.all(
-              color: AppTheme.accentGold,
-              width: 2.0,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.accentGold.withValues(alpha: 0.3),
-                blurRadius: 20.0,
-                spreadRadius: 2.0,
-              ),
-            ],
           ),
-          child: Center(
-            child: Text(
-              'BLDR',
-              style: AppTheme.darkTheme.textTheme.headlineMedium?.copyWith(
-                color: AppTheme.accentGold,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 2.0,
-              ),
+          child: Text(
+            'BLDR',
+            style: AppTheme.darkTheme.textTheme.headlineMedium?.copyWith(
+              color: AppTheme.accentGold,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 2.0,
             ),
           ),
         ),

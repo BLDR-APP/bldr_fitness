@@ -40,7 +40,7 @@ class DailyNutritionOverviewWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Daily Overview',
+            'Resumo Diário',
             style: AppTheme.darkTheme.textTheme.titleLarge?.copyWith(
               color: AppTheme.textPrimary,
               fontWeight: FontWeight.w600,
@@ -58,14 +58,14 @@ class DailyNutritionOverviewWidget extends StatelessWidget {
                 flex: 3,
                 child: Column(
                   children: [
-                    _buildMacroProgress('Protein', totalProtein, proteinTarget,
+                    _buildMacroProgress('Proteina', totalProtein, proteinTarget,
                         'g', AppTheme.errorRed),
                     SizedBox(height: 2.h),
-                    _buildMacroProgress('Carbs', totalCarbs, carbsTarget, 'g',
+                    _buildMacroProgress('Carboidrato', totalCarbs, carbsTarget, 'g',
                         AppTheme.warningAmber),
                     SizedBox(height: 2.h),
                     _buildMacroProgress(
-                        'Fat', totalFat, fatTarget, 'g', AppTheme.successGreen),
+                        'Gordura', totalFat, fatTarget, 'g', AppTheme.successGreen),
                   ],
                 ),
               ),
@@ -111,7 +111,7 @@ class DailyNutritionOverviewWidget extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'of $target',
+                      'de $target',
                       style: AppTheme.darkTheme.textTheme.bodySmall?.copyWith(
                         color: AppTheme.textSecondary,
                         fontSize: 10.sp,
@@ -125,14 +125,14 @@ class DailyNutritionOverviewWidget extends StatelessWidget {
         ),
         SizedBox(height: 2.h),
         Text(
-          'Calories',
+          'Calorias',
           style: AppTheme.darkTheme.textTheme.bodyMedium?.copyWith(
             color: AppTheme.textPrimary,
             fontWeight: FontWeight.w600,
           ),
         ),
         Text(
-          '${target - current} left',
+          '${target - current} restantes',
           style: AppTheme.darkTheme.textTheme.bodySmall?.copyWith(
             color: AppTheme.textSecondary,
           ),

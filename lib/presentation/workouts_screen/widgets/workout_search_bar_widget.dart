@@ -35,7 +35,7 @@ class WorkoutSearchBarWidget extends StatelessWidget {
               color: AppTheme.textPrimary,
             ),
             decoration: InputDecoration(
-              hintText: 'Search workouts...',
+              hintText: 'Buscar treinos...',
               hintStyle: AppTheme.darkTheme.textTheme.bodyMedium?.copyWith(
                 color: AppTheme.textSecondary,
               ),
@@ -61,13 +61,13 @@ class WorkoutSearchBarWidget extends StatelessWidget {
           child: Row(
             children: [
               _buildFilterChip(
-                'All Types',
+                'Todos',
                 selectedType == null,
                 () => onTypeFilter(null),
               ),
               SizedBox(width: 2.w),
               _buildFilterChip(
-                'Strength',
+                'Força',
                 selectedType == 'strength',
                 () => onTypeFilter('strength'),
               ),
@@ -79,7 +79,7 @@ class WorkoutSearchBarWidget extends StatelessWidget {
               ),
               SizedBox(width: 2.w),
               _buildFilterChip(
-                'Flexibility',
+                'Flexibilidade',
                 selectedType == 'flexibility',
                 () => onTypeFilter('flexibility'),
               ),
@@ -143,8 +143,8 @@ class WorkoutSearchBarWidget extends StatelessWidget {
           children: [
             Text(
               selectedDifficulty != null
-                  ? 'Level $selectedDifficulty'
-                  : 'Difficulty',
+                  ? 'Nível $selectedDifficulty'
+                  : 'Dificuldade',
               style: AppTheme.darkTheme.textTheme.bodySmall?.copyWith(
                 color: selectedDifficulty != null
                     ? AppTheme.primaryBlack
@@ -169,26 +169,26 @@ class WorkoutSearchBarWidget extends StatelessWidget {
         PopupMenuItem<int?>(
           value: null,
           child:
-              Text('All Levels', style: TextStyle(color: AppTheme.textPrimary)),
+              Text('Todos os níveis', style: TextStyle(color: AppTheme.textPrimary)),
         ),
         PopupMenuItem<int>(
           value: 1,
-          child: Text('Level 1 - Beginner',
+          child: Text('Nível 1 - Iniciante',
               style: TextStyle(color: AppTheme.textPrimary)),
         ),
         PopupMenuItem<int>(
           value: 2,
-          child: Text('Level 2 - Intermediate',
+          child: Text('Nível 2 - Intermediário',
               style: TextStyle(color: AppTheme.textPrimary)),
         ),
         PopupMenuItem<int>(
           value: 3,
-          child: Text('Level 3 - Advanced',
+          child: Text('Nível 3 - Avançado',
               style: TextStyle(color: AppTheme.textPrimary)),
         ),
         PopupMenuItem<int>(
           value: 4,
-          child: Text('Level 4 - Expert',
+          child: Text('Nível 4 - Experiente',
               style: TextStyle(color: AppTheme.textPrimary)),
         ),
       ],

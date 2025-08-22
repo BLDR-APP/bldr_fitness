@@ -21,7 +21,7 @@ class ExerciseCategoriesWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Exercise Library',
+          'Biblioteca de Exercícios',
           style: AppTheme.darkTheme.textTheme.titleLarge?.copyWith(
             color: AppTheme.textPrimary,
             fontWeight: FontWeight.w600,
@@ -80,7 +80,7 @@ class ExerciseCategoriesWidget extends StatelessWidget {
             ),
             SizedBox(height: 0.5.h),
             Text(
-              '${category['count']} exercises',
+              '${category['count']} exercícios',
               style: AppTheme.darkTheme.textTheme.bodySmall?.copyWith(
                 color: AppTheme.textSecondary,
               ),
@@ -93,41 +93,45 @@ class ExerciseCategoriesWidget extends StatelessWidget {
   }
 
   List<Map<String, dynamic>> _getExerciseCategories() {
-    final Map<String, int> exerciseCount = {};
+    // Fazemos as contagens por tipo de exercício vindo do banco
+    int strengthCount = 0;
+    int hiitCount = 0;
+    int flexibilityCount = 0;
 
     for (final exercise in exercises) {
-      final type = exercise['exercise_type'] ?? 'compound';
-      exerciseCount[type] = (exerciseCount[type] ?? 0) + 1;
+      final type = (exercise['exercise_type'] ?? '').toString().toLowerCase();
+      if (type == 'compound' || type == 'strength') {
+        strengthCount++;
+      } else if (type == 'cardio' || type == 'plyometric' || type == 'hiit') {
+        // nossos exercícios de HIIT estão como 'cardio' nos seeds
+        hiitCount++;
+      } else if (type == 'stretching' || type == 'flexibility') {
+        flexibilityCount++;
+      }
     }
 
+    // Renderiza apenas Força, HIIT e Flexibilidade
     return [
       {
-        'name': 'Strength',
-        'type': 'strength',
+        'name': 'Força',
+        'type': 'strength', // usado no filtro da tela
         'icon': 'fitness_center',
         'color': AppTheme.accentGold,
-        'count': exerciseCount['compound'] ?? 0,
-      },
-      {
-        'name': 'Cardio',
-        'type': 'cardio',
-        'icon': 'directions_run',
-        'color': AppTheme.errorRed,
-        'count': exerciseCount['cardio'] ?? 0,
+        'count': strengthCount,
       },
       {
         'name': 'HIIT',
-        'type': 'sports',
+        'type': 'sports', // seu chip HIIT usa workout_type = 'sports'
         'icon': 'sports_martial_arts',
         'color': AppTheme.warningAmber,
-        'count': exerciseCount['plyometric'] ?? 0,
+        'count': hiitCount,
       },
       {
-        'name': 'Flexibility',
+        'name': 'Mobilidade',
         'type': 'flexibility',
         'icon': 'accessibility',
         'color': AppTheme.successGreen,
-        'count': exerciseCount['stretching'] ?? 0,
+        'count': flexibilityCount,
       },
     ];
   }

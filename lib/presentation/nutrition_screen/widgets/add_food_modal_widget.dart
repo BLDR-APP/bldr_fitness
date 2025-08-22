@@ -71,7 +71,7 @@ class _AddFoodModalWidgetState extends State<AddFoodModalWidget> {
               ),
             ),
             Text(
-              'Add ${_formatMealType(widget.mealType)}',
+              'Adicionar ${_formatMealType(widget.mealType)}',
               style: AppTheme.darkTheme.textTheme.titleLarge?.copyWith(
                 color: AppTheme.textPrimary,
                 fontWeight: FontWeight.w600,
@@ -82,7 +82,7 @@ class _AddFoodModalWidgetState extends State<AddFoodModalWidget> {
               children: [
                 Expanded(
                   child: _buildActionButton(
-                    'Search Food',
+                    'Buscar comida',
                     'search',
                     AppTheme.accentGold,
                     _showSearchDialog,
@@ -91,7 +91,7 @@ class _AddFoodModalWidgetState extends State<AddFoodModalWidget> {
                 SizedBox(width: 2.w),
                 Expanded(
                   child: _buildActionButton(
-                    'Scan Barcode',
+                    'Escanear código de barras',
                     'qr_code_scanner',
                     AppTheme.successGreen,
                     _scanBarcode,
@@ -113,7 +113,7 @@ class _AddFoodModalWidgetState extends State<AddFoodModalWidget> {
                 SizedBox(width: 2.w),
                 Expanded(
                   child: _buildActionButton(
-                    'Voice Input',
+                    'Voz',
                     'mic',
                     Colors.purple,
                     _useVoiceInput,
@@ -123,7 +123,7 @@ class _AddFoodModalWidgetState extends State<AddFoodModalWidget> {
             ),
             SizedBox(height: 4.h),
             Text(
-              'Recent Foods',
+              'Comidas recentes',
               style: AppTheme.darkTheme.textTheme.titleMedium?.copyWith(
                 color: AppTheme.textPrimary,
                 fontWeight: FontWeight.w600,
@@ -263,7 +263,7 @@ class _AddFoodModalWidgetState extends State<AddFoodModalWidget> {
     // Show nutrition search widget
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Opening food search...'),
+        content: Text('Abrindo busca de comida...'),
         backgroundColor: AppTheme.accentGold,
         behavior: SnackBarBehavior.floating,
       ),
@@ -274,7 +274,7 @@ class _AddFoodModalWidgetState extends State<AddFoodModalWidget> {
     // Implement barcode scanning
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Opening barcode scanner...'),
+        content: Text('Abrindo escaner...'),
         backgroundColor: AppTheme.successGreen,
         behavior: SnackBarBehavior.floating,
       ),
@@ -285,7 +285,7 @@ class _AddFoodModalWidgetState extends State<AddFoodModalWidget> {
     // Implement camera-based food recognition
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Opening camera...'),
+        content: Text('Abrindo camera...'),
         backgroundColor: AppTheme.errorRed,
         behavior: SnackBarBehavior.floating,
       ),
@@ -296,7 +296,7 @@ class _AddFoodModalWidgetState extends State<AddFoodModalWidget> {
     // Implement voice input
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Starting voice input...'),
+        content: Text('Iniciando voz...'),
         backgroundColor: Colors.purple,
         behavior: SnackBarBehavior.floating,
       ),

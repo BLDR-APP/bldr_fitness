@@ -10,6 +10,11 @@ import './widgets/meal_timeline_widget.dart';
 import './widgets/nutrition_search_widget.dart';
 import './widgets/water_intake_widget.dart';
 
+// ADIÇÕES ↓↓↓
+import '../../services/oura_api_service.dart'; // serviço Oura (OAuth + chamadas)
+import './widgets/daily_sleep_overview_widget.dart'; // card de sono
+// ADIÇÕES ↑↑↑
+
 class NutritionScreen extends StatefulWidget {
   const NutritionScreen({Key? key}) : super(key: key);
 
@@ -24,6 +29,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
   bool _isLoading = true;
   bool _hasError = false;
   int _waterIntake = 0;
+
+  // ADIÇÃO: estado do sono (estrutura simples baseada no JSON da API Oura)
+  Map<String, dynamic>? _sleep; // daily_sleep[0]
 
   @override
   void initState() {
@@ -43,6 +51,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
       final summary = await NutritionService.instance
           .getDailyNutritionSummary(date: _selectedDate);
 
+      // ADIÇÃO: carregar dados de sono do Oura para o dia selecionado
+      await _loadSleep();
+
       setState(() {
         _meals = meals;
         _nutritionSummary = summary;
@@ -53,6 +64,19 @@ class _NutritionScreenState extends State<NutritionScreen> {
         _hasError = true;
         _isLoading = false;
       });
+    }
+  }
+
+  // ADIÇÃO: busca o daily_sleep do dia (_selectedDate)
+  Future<void> _loadSleep() async {
+    try {
+      final json = await OuraApiService.instance
+          .getDailySleep(day: _selectedDate); // retorna { data: [...] }
+      final list = (json['data'] as List?) ?? [];
+      _sleep = list.isNotEmpty ? Map<String, dynamic>.from(list.first) : null;
+    } catch (_) {
+      // mantém _sleep como null silenciosamente
+      _sleep = null;
     }
   }
 
@@ -106,7 +130,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                           decoration: BoxDecoration(
                               color: AppTheme.dividerGray,
                               borderRadius: BorderRadius.circular(2))),
-                      Text('Set Portion Size',
+                      Text('Definir porção',
                           style: AppTheme.darkTheme.textTheme.titleLarge
                               ?.copyWith(
                                   color: AppTheme.textPrimary,
@@ -117,7 +141,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                               ?.copyWith(color: AppTheme.textSecondary)),
                       SizedBox(height: 3.h),
                       Row(children: [
-                        Text('Quantity (grams):',
+                        Text('Quantidade (gramas):',
                             style: AppTheme.darkTheme.textTheme.bodyMedium
                                 ?.copyWith(color: AppTheme.textPrimary)),
                         Spacer(),
@@ -160,13 +184,15 @@ class _NutritionScreenState extends State<NutritionScreen> {
 
                               ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                      content: Text('Food added successfully!'),
+                                      content:
+                                          Text('Comida adicionada com sucesso!'),
                                       backgroundColor: AppTheme.successGreen,
                                       behavior: SnackBarBehavior.floating));
                             } catch (error) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                      content: Text('Failed to add food'),
+                                      content:
+                                          Text('Falha ao adicionar comida'),
                                       backgroundColor: AppTheme.errorRed,
                                       behavior: SnackBarBehavior.floating));
                             }
@@ -179,7 +205,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                                   borderRadius: BorderRadius.circular(12))),
                           child: Container(
                               width: double.infinity,
-                              child: Text('Add Food',
+                              child: Text('Adicionar comida',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                       fontWeight: FontWeight.w600,
@@ -192,7 +218,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
     setState(() {
       _selectedDate = date;
     });
-    _loadData();
+    _loadData(); // já recarrega sono + nutrição
   }
 
   void _incrementWater() {
@@ -215,6 +241,16 @@ class _NutritionScreenState extends State<NutritionScreen> {
           backgroundColor: AppTheme.primaryBlack,
           body: Center(child: CustomErrorWidget()));
     }
+
+    // Helpers para o card de sono (mantém seguro caso _sleep == null)
+    final int totalSleepMin =
+        ((_sleep?['total_sleep_duration'] ?? 0) as num).round() ~/ 60;
+    final int? sleepScore =
+        _sleep?['score'] != null ? (_sleep!['score'] as num).round() : null;
+    final int? restingHr =
+        _sleep?['resting_heart_rate'] != null ? (_sleep!['resting_heart_rate'] as num).round() : null;
+    final int? hrv =
+        _sleep?['average_hrv'] != null ? (_sleep!['average_hrv'] as num).round() : null;
 
     return Scaffold(
         backgroundColor: AppTheme.primaryBlack,
@@ -248,9 +284,24 @@ class _NutritionScreenState extends State<NutritionScreen> {
                           EdgeInsets.symmetric(horizontal: 4.w, vertical: 3.h),
                       child: WaterIntakeWidget(
                           intake: _waterIntake, onIncrement: _incrementWater))),
+
+              // ADIÇÃO: Card “Sono” (apenas exibição; se não houver dados mostra zeros/--).
+              SliverToBoxAdapter(
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 0),
+                  child: DailySleepOverviewWidget(
+                    selectedDate: _selectedDate,
+                    totalSleepMin: totalSleepMin,
+                    score: sleepScore,
+                    restingHr: restingHr,
+                    hrv: hrv,
+                  ),
+                ),
+              ),
+
               SliverToBoxAdapter(
                   child: Container(
-                      margin: EdgeInsets.symmetric(horizontal: 4.w),
+                      margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 3.h),
                       child: MealTimelineWidget(
                           meals: _meals,
                           onAddMeal: _showAddFoodModal,
@@ -269,7 +320,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
 
   Widget _buildDateSelector() {
     return Row(children: [
-      Text('Nutrition',
+      Text('Nutrição',
           style: AppTheme.darkTheme.textTheme.headlineSmall?.copyWith(
               color: AppTheme.textPrimary, fontWeight: FontWeight.w600)),
       Spacer(),
@@ -303,7 +354,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                     _selectedDate.day == DateTime.now().day &&
                             _selectedDate.month == DateTime.now().month &&
                             _selectedDate.year == DateTime.now().year
-                        ? 'Today'
+                        ? 'Hoje'
                         : '${_selectedDate.day}/${_selectedDate.month}',
                     style: AppTheme.darkTheme.textTheme.bodyMedium?.copyWith(
                         color: AppTheme.textPrimary,
