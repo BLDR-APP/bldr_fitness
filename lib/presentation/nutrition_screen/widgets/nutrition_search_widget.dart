@@ -3,13 +3,16 @@ import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
 import '../../../services/nutrition_service.dart';
+import './barcode_scanner_page.dart';
 
 class NutritionSearchWidget extends StatefulWidget {
   final Function(Map<String, dynamic>) onFoodSelected;
+  final String? initialQuery;
 
   const NutritionSearchWidget({
     Key? key,
     required this.onFoodSelected,
+    this.initialQuery,
   }) : super(key: key);
 
   @override
@@ -24,7 +27,11 @@ class _NutritionSearchWidgetState extends State<NutritionSearchWidget> {
   @override
   void initState() {
     super.initState();
-    _loadPopularFoods();
+    if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
+      _searchFoods(widget.initialQuery!);
+    } else {
+      _loadPopularFoods();
+    }
   }
 
   Future<void> _loadPopularFoods() async {
@@ -75,6 +82,42 @@ class _NutritionSearchWidgetState extends State<NutritionSearchWidget> {
         _isLoading = false;
       });
     }
+  }
+
+  Future<void> _openBarcodeScan() async {
+    final code = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(builder: (_) => const BarcodeScannerPage()),
+    );
+    if (code == null) return;
+
+    setState(() => _isLoading = true);
+    try {
+      // chama a API específica de barcode
+      final foods = await NutritionService.instance.searchByBarcode(code);
+      setState(() {
+        _searchQuery = code;
+        _searchResults = foods;
+      });
+
+      // se só tem 1 resultado, já abre direto
+      if (foods.length == 1 && mounted) {
+        widget.onFoodSelected(foods.first);
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+// opcional placeholder (visão por imagem, não implementado agora)
+  void _openCameraScan() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Reconhecimento por imagem ainda não implementado'),
+        backgroundColor: AppTheme.errorRed,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
@@ -129,16 +172,23 @@ class _NutritionSearchWidgetState extends State<NutritionSearchWidget> {
                   suffixIcon: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      CustomIconWidget(
-                        iconName: 'camera_alt',
-                        color: AppTheme.textSecondary,
-                        size: 5.w,
+                      IconButton(
+                        onPressed:
+                            _openCameraScan, // você pode implementar depois
+                        icon: CustomIconWidget(
+                          iconName: 'camera_alt',
+                          color: AppTheme.textSecondary,
+                          size: 5.w,
+                        ),
                       ),
-                      SizedBox(width: 2.w),
-                      CustomIconWidget(
-                        iconName: 'qr_code_scanner',
-                        color: AppTheme.textSecondary,
-                        size: 5.w,
+                      SizedBox(width: 1.w),
+                      IconButton(
+                        onPressed: _openBarcodeScan, // chama o scanner
+                        icon: CustomIconWidget(
+                          iconName: 'qr_code_scanner',
+                          color: AppTheme.textSecondary,
+                          size: 5.w,
+                        ),
                       ),
                       SizedBox(width: 2.w),
                     ],

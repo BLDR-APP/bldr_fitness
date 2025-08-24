@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../core/app_export.dart';
-import '../../services/user_service.dart';
 import './widgets/card_selection_widget.dart';
 import './widgets/multiple_choice_widget.dart';
 import './widgets/navigation_buttons_widget.dart';
@@ -25,7 +25,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
   final int _totalSteps = 7;
   bool _isCompleting = false;
 
-  // Response storage
+  // Respostas do usuário
   final Map<String, dynamic> _responses = {
     'fitness_goals': '',
     'experience_level': '',
@@ -35,64 +35,113 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
     'dietary_preferences': <String>[],
   };
 
-  // Mock data for questions
+  // Opções de objetivos
   final List<String> _fitnessGoals = [
-    'Lose Weight',
-    'Build Muscle',
-    'Improve Endurance',
-    'General Fitness',
-    'Athletic Performance',
-    'Rehabilitation',
+    'Perder Peso',
+    'Ganhar Massa Muscular',
+    'Melhorar Resistência',
+    'Saúde Geral',
+    'Performance Esportiva',
+    'Reabilitação',
   ];
 
   final List<String> _experienceLevels = [
-    'Beginner (0-6 months)',
-    'Intermediate (6 months - 2 years)',
-    'Advanced (2+ years)',
-    'Expert (5+ years)',
+    'Iniciante (0-6 meses)',
+    'Intermediário (6 meses - 2 anos)',
+    'Avançado (2+ anos)',
+    'Especialista (5+ anos)',
   ];
 
   final List<String> _workoutTypes = [
-    'Strength Training',
+    'Treino de Força',
     'Cardio',
     'HIIT',
     'Yoga',
     'Pilates',
     'CrossFit',
-    'Running',
-    'Swimming',
-    'Cycling',
-    'Dance',
+    'Corrida',
+    'Natação',
+    'Ciclismo',
+    'Dança',
   ];
 
   final List<Map<String, dynamic>> _equipmentOptions = [
-    {'title': 'Dumbbells', 'icon': 'fitness_center'},
-    {'title': 'Resistance Bands', 'icon': 'linear_scale'},
+    {'title': 'Halteres', 'icon': 'fitness_center'},
+    {'title': 'Faixas Elásticas', 'icon': 'linear_scale'},
     {'title': 'Kettlebells', 'icon': 'sports_gymnastics'},
-    {'title': 'Pull-up Bar', 'icon': 'height'},
-    {'title': 'Yoga Mat', 'icon': 'self_improvement'},
-    {'title': 'Treadmill', 'icon': 'directions_run'},
-    {'title': 'Stationary Bike', 'icon': 'directions_bike'},
-    {'title': 'No Equipment', 'icon': 'accessibility_new'},
+    {'title': 'Barra Fixa', 'icon': 'height'},
+    {'title': 'Tapete de Yoga', 'icon': 'self_improvement'},
+    {'title': 'Esteira', 'icon': 'directions_run'},
+    {'title': 'Bicicleta Ergométrica', 'icon': 'directions_bike'},
+    {'title': 'Sem Equipamento', 'icon': 'accessibility_new'},
   ];
 
   final List<String> _dietaryPreferences = [
-    'No Restrictions',
-    'Vegetarian',
-    'Vegan',
+    'Sem Restrições',
+    'Vegetariano',
+    'Vegano',
     'Keto',
     'Paleo',
-    'Mediterranean',
+    'Mediterrânea',
     'Low Carb',
-    'High Protein',
-    'Gluten Free',
-    'Dairy Free',
+    'Alta Proteína',
+    'Sem Glúten',
+    'Sem Lactose',
   ];
 
   @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        backgroundColor: AppTheme.primaryBlack,
+        body: SafeArea(
+          child: Column(
+            children: [
+              // Progress Indicator
+              Padding(
+                padding: EdgeInsets.all(4.w),
+                child: ProgressIndicatorWidget(
+                  currentStep: _currentStep,
+                  totalSteps: _totalSteps,
+                ),
+              ),
+
+              // Main Content
+              Expanded(
+                child: PageView(
+                  controller: _pageController,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    _buildFitnessGoalsStep(),
+                    _buildExperienceLevelStep(),
+                    _buildWorkoutTypesStep(),
+                    _buildEquipmentStep(),
+                    _buildTimeConstraintsStep(),
+                    _buildDietaryPreferencesStep(),
+                    _buildSummaryStep(),
+                  ],
+                ),
+              ),
+
+              // Navigation Buttons
+              Padding(
+                padding: EdgeInsets.all(4.w),
+                child: NavigationButtonsWidget(
+                  canGoBack: _currentStep > 0,
+                  canGoNext: _canProceedToNextStep(),
+                  isLastStep: _currentStep == _totalSteps - 1,
+                  onBack: _previousStep,
+                  onNext: _currentStep == _totalSteps - 1
+                      ? _completeOnboarding
+                      : _nextStep,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _nextStep() {
@@ -100,12 +149,11 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
       setState(() {
         _currentStep++;
       });
-      _pageController.nextPage(
+      _pageController.animateToPage(
+        _currentStep,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
-    } else {
-      _completeOnboarding();
     }
   }
 
@@ -114,26 +162,52 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
       setState(() {
         _currentStep--;
       });
-      _pageController.previousPage(
+      _pageController.animateToPage(
+        _currentStep,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
     }
   }
 
-  void _skipStep() {
-    _nextStep();
+  void _goToStep(int stepIndex) {
+    if (stepIndex >= 0 && stepIndex < _totalSteps) {
+      setState(() {
+        _currentStep = stepIndex;
+      });
+      _pageController.animateToPage(
+        _currentStep,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
-  void _goToStep(int step) {
-    setState(() {
-      _currentStep = step;
-    });
-    _pageController.animateToPage(
-      step,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
+  bool _canProceedToNextStep() {
+    switch (_currentStep) {
+      case 0:
+        return (_responses['fitness_goals'] as String).isNotEmpty;
+      case 1:
+        return (_responses['experience_level'] as String).isNotEmpty;
+      case 2:
+        return (_responses['workout_types'] as List<String>).isNotEmpty;
+      case 3:
+        return (_responses['available_equipment'] as List<String>).isNotEmpty;
+      case 4:
+        return true; // Time constraints always has a default value
+      case 5:
+        return true; // Dietary preferences is optional
+      case 6:
+        return true; // Summary step
+      default:
+        return false;
+    }
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   void _completeOnboarding() async {
@@ -144,17 +218,40 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
     });
 
     try {
-      // Save onboarding data to Supabase
-      await UserService.instance.saveOnboardingData(
-        onboardingData: _responses,
-      );
+      final sb = Supabase.instance.client;
+      final user = sb.auth.currentUser;
+      if (user == null) {
+        throw Exception('Usuário não autenticado.');
+      }
+
+      if (user.email == null) {
+        // se sua coluna email é NOT NULL, melhor falhar de forma clara
+        throw Exception(
+            'Email do usuário não disponível para salvar no perfil.');
+      }
+
+      final payload = {
+        'id': user.id,
+        'email': user.email,
+        'full_name': user.userMetadata?['full_name'] ??
+            user.email?.split('@')[0] ??
+            'Usuário',
+        'onboarding_data': _responses,
+        'onboarding_completed': true,
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      };
+
+      // upsert correto (sem .eq) e garantindo conflito pelo id
+      await sb.from('user_profiles').upsert(
+            payload,
+            onConflict: 'id',
+          );
 
       if (mounted) {
         setState(() {
           _isCompleting = false;
         });
 
-        // Show completion dialog
         showDialog(
           context: context,
           barrierDismissible: false,
@@ -171,7 +268,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
                 ),
                 SizedBox(width: 3.w),
                 Text(
-                  'Setup Complete!',
+                  'Configuração Concluída!',
                   style: AppTheme.darkTheme.textTheme.titleLarge?.copyWith(
                     color: AppTheme.textPrimary,
                   ),
@@ -179,7 +276,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
               ],
             ),
             content: Text(
-              'Your personalized fitness experience is ready. Let\'s start your journey!',
+              'Sua experiência fitness personalizada está pronta. Vamos começar a jornada!',
               style: AppTheme.darkTheme.textTheme.bodyMedium?.copyWith(
                 color: AppTheme.textSecondary,
               ),
@@ -197,9 +294,28 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
                   backgroundColor: AppTheme.accentGold,
                   foregroundColor: AppTheme.primaryBlack,
                 ),
-                child: const Text('Get Started'),
+                child: const Text('Começar'),
               ),
             ],
+          ),
+        );
+      }
+    } on PostgrestException catch (e) {
+      if (mounted) {
+        setState(() {
+          _isCompleting = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Erro Supabase: code=${e.code} | ${e.message}${e.details != null ? " | ${e.details}" : ""}',
+            ),
+            backgroundColor: AppTheme.errorRed,
+            action: SnackBarAction(
+              label: 'Tentar Novamente',
+              textColor: AppTheme.accentGold,
+              onPressed: () => _completeOnboarding(),
+            ),
           ),
         );
       }
@@ -211,37 +327,17 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to complete onboarding: ${error.toString()}'),
+            content:
+                Text('Falha ao concluir configuração: ${error.toString()}'),
             backgroundColor: AppTheme.errorRed,
             action: SnackBarAction(
-              label: 'Retry',
+              label: 'Tentar Novamente',
               textColor: AppTheme.accentGold,
               onPressed: () => _completeOnboarding(),
             ),
           ),
         );
       }
-    }
-  }
-
-  bool _canGoNext() {
-    switch (_currentStep) {
-      case 0:
-        return (_responses['fitness_goals'] as String).isNotEmpty;
-      case 1:
-        return (_responses['experience_level'] as String).isNotEmpty;
-      case 2:
-        return (_responses['workout_types'] as List).isNotEmpty;
-      case 3:
-        return (_responses['available_equipment'] as List).isNotEmpty;
-      case 4:
-        return true; // Slider always has a value
-      case 5:
-        return (_responses['dietary_preferences'] as List).isNotEmpty;
-      case 6:
-        return true; // Summary step
-      default:
-        return false;
     }
   }
 
@@ -258,13 +354,13 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             title: Text(
-              'Exit Setup?',
+              'Sair da Configuração?',
               style: AppTheme.darkTheme.textTheme.titleLarge?.copyWith(
                 color: AppTheme.textPrimary,
               ),
             ),
             content: Text(
-              'Your progress will be lost. Are you sure you want to exit?',
+              'Seu progresso será perdido. Deseja realmente sair?',
               style: AppTheme.darkTheme.textTheme.bodyMedium?.copyWith(
                 color: AppTheme.textSecondary,
               ),
@@ -273,14 +369,14 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
                 child: Text(
-                  'Continue Setup',
+                  'Continuar',
                   style: TextStyle(color: AppTheme.accentGold),
                 ),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
                 child: Text(
-                  'Exit',
+                  'Sair',
                   style: TextStyle(color: AppTheme.errorRed),
                 ),
               ),
@@ -290,60 +386,11 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         false;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
-      child: Scaffold(
-        backgroundColor: AppTheme.primaryBlack,
-        body: SafeArea(
-          child: Column(
-            children: [
-              ProgressIndicatorWidget(
-                currentStep: _currentStep,
-                totalSteps: _totalSteps,
-              ),
-              Expanded(
-                child: PageView(
-                  controller: _pageController,
-                  onPageChanged: (index) {
-                    setState(() {
-                      _currentStep = index;
-                    });
-                  },
-                  children: [
-                    _buildFitnessGoalsStep(),
-                    _buildExperienceLevelStep(),
-                    _buildWorkoutTypesStep(),
-                    _buildEquipmentStep(),
-                    _buildTimeConstraintsStep(),
-                    _buildDietaryPreferencesStep(),
-                    _buildSummaryStep(),
-                  ],
-                ),
-              ),
-              NavigationButtonsWidget(
-                canGoBack: _currentStep > 0,
-                canGoNext: _canGoNext(),
-                isLastStep: _currentStep == _totalSteps - 1,
-                onBack: _previousStep,
-                onNext: _nextStep,
-                onSkip: _skipStep,
-                showSkip:
-                    _currentStep == 5, // Only show skip on dietary preferences
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
+  // --- Passos traduzidos ---
   Widget _buildFitnessGoalsStep() {
     return QuestionCardWidget(
-      title: 'What\'s your main fitness goal?',
-      subtitle:
-          'This helps us create a personalized workout plan just for you.',
+      title: 'Qual é o seu principal objetivo fitness?',
+      subtitle: 'Isso nos ajuda a criar um treino personalizado para você.',
       child: SingleChoiceWidget(
         options: _fitnessGoals,
         selectedOption: _responses['fitness_goals'] as String?,
@@ -358,9 +405,9 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
 
   Widget _buildExperienceLevelStep() {
     return QuestionCardWidget(
-      title: 'What\'s your fitness experience?',
+      title: 'Qual é a sua experiência com treinos?',
       subtitle:
-          'We\'ll adjust the intensity and complexity of your workouts accordingly.',
+          'Vamos ajustar a intensidade e complexidade conforme seu nível.',
       child: SingleChoiceWidget(
         options: _experienceLevels,
         selectedOption: _responses['experience_level'] as String?,
@@ -375,8 +422,8 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
 
   Widget _buildWorkoutTypesStep() {
     return QuestionCardWidget(
-      title: 'What types of workouts do you enjoy?',
-      subtitle: 'Select all that apply. We\'ll mix these into your routine.',
+      title: 'Quais tipos de treino você prefere?',
+      subtitle: 'Selecione todos que se aplicam. Vamos incluir na sua rotina.',
       child: MultipleChoiceWidget(
         options: _workoutTypes,
         selectedOptions: _responses['workout_types'] as List<String>,
@@ -391,8 +438,8 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
 
   Widget _buildEquipmentStep() {
     return QuestionCardWidget(
-      title: 'What equipment do you have access to?',
-      subtitle: 'We\'ll design workouts based on your available equipment.',
+      title: 'Quais equipamentos você tem disponíveis?',
+      subtitle: 'Montaremos treinos de acordo com seus recursos.',
       child: CardSelectionWidget(
         options: _equipmentOptions,
         selectedOptions: _responses['available_equipment'] as List<String>,
@@ -408,8 +455,8 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
 
   Widget _buildTimeConstraintsStep() {
     return QuestionCardWidget(
-      title: 'How much time can you dedicate to workouts?',
-      subtitle: 'We\'ll create efficient routines that fit your schedule.',
+      title: 'Quanto tempo você pode dedicar aos treinos?',
+      subtitle: 'Vamos criar rotinas eficientes que cabem na sua agenda.',
       child: Column(
         children: [
           SliderWidget(
@@ -417,7 +464,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
             min: 15,
             max: 120,
             divisions: 21,
-            label: 'Minutes per workout',
+            label: 'Minutos por treino',
             onChanged: (value) {
               setState(() {
                 _responses['time_constraints'] = value;
@@ -442,7 +489,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
                 ),
                 SizedBox(height: 2.h),
                 Text(
-                  'Perfect! ${(_responses['time_constraints'] as double).round()} minutes is great for effective workouts.',
+                  'Perfeito! ${(_responses['time_constraints'] as double).round()} minutos é ótimo para treinos eficazes.',
                   textAlign: TextAlign.center,
                   style: AppTheme.darkTheme.textTheme.bodyMedium?.copyWith(
                     color: AppTheme.textSecondary,
@@ -458,9 +505,9 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
 
   Widget _buildDietaryPreferencesStep() {
     return QuestionCardWidget(
-      title: 'Any dietary preferences?',
+      title: 'Alguma preferência alimentar?',
       subtitle:
-          'Optional: This helps us suggest nutrition tips that align with your lifestyle.',
+          'Opcional: Isso ajuda a sugerir dicas nutricionais que combinam com seu estilo de vida.',
       child: MultipleChoiceWidget(
         options: _dietaryPreferences,
         selectedOptions: _responses['dietary_preferences'] as List<String>,
@@ -475,9 +522,9 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
 
   Widget _buildSummaryStep() {
     return QuestionCardWidget(
-      title: 'Almost done!',
+      title: 'Quase lá!',
       subtitle:
-          'Review your preferences below. You can always change these later in settings.',
+          'Revise suas preferências abaixo. Você pode alterá-las depois em Configurações.',
       child: SummaryWidget(
         responses: _responses,
         onEdit: (key) {

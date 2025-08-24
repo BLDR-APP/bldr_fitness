@@ -10,7 +10,6 @@ import '../presentation/progress_screen/progress_screen.dart';
 import '../presentation/nutrition_screen/nutrition_screen.dart';
 import '../presentation/workouts_screen/workouts_screen.dart';
 import '../presentation/email_confirmation_screen/email_confirmation_screen.dart';
-import '../presentation/profile_drawer/profile_drawer.dart';
 
 class AppRoutes {
   // Route constants

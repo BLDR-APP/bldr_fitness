@@ -46,7 +46,18 @@
 	<key>NSAppTransportSecurity</key>
     <dict>
         <key>NSAllowsArbitraryLoads</key>
-        <true />
+        <true/>
     </dict>
+
+	<!-- ===== Permissões adicionadas (apenas o necessário) ===== -->
+	<key>NSCameraUsageDescription</key>
+	<string>Usaremos a câmera para escanear códigos e tirar fotos do alimento.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Usaremos o microfone para adicionar alimentos por voz.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Usaremos o reconhecimento de fala para transcrever sua voz em texto.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Permitir acesso à galeria para escolher fotos do alimento.</string>
+	<!-- ===== Fim das permissões ===== -->
 </dict>
 </plist>

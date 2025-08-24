@@ -67,7 +67,7 @@ class NutritionService {
     try {
       final currentUser = AuthService.instance.currentUser;
       if (currentUser == null) {
-        throw Exception('User must be authenticated');
+        throw Exception('Usuário tem que estar autenticado');
       }
 
       final response = await _client
@@ -90,7 +90,7 @@ class NutritionService {
 
       return response;
     } catch (error) {
-      throw Exception('Failed to create food item: $error');
+      throw Exception('Falha ao criar item: $error');
     }
   }
 
@@ -104,7 +104,7 @@ class NutritionService {
     try {
       final currentUser = AuthService.instance.currentUser;
       if (currentUser == null) {
-        throw Exception('User must be authenticated');
+        throw Exception('Usuário tem que estar autenticado');
       }
 
       final response = await _client
@@ -121,7 +121,7 @@ class NutritionService {
 
       return response;
     } catch (error) {
-      throw Exception('Failed to create meal: $error');
+      throw Exception('Falha ao criar refeição: $error');
     }
   }
 
@@ -135,7 +135,7 @@ class NutritionService {
       // Get food item nutrition info
       final foodItem = await getFoodItem(foodItemId);
       if (foodItem == null) {
-        throw Exception('Food item not found');
+        throw Exception('Comida não localizada');
       }
 
       // Calculate nutrition values based on quantity
@@ -281,5 +281,28 @@ class NutritionService {
     } catch (error) {
       throw Exception('Failed to remove food from meal: $error');
     }
+  }
+
+  Future<List<Map<String, dynamic>>> searchByBarcode(String ean) async {
+    // chama a Edge Function 'food-search' com { barcode }
+    final sb = Supabase.instance.client;
+
+    final resp = await sb.functions.invoke('food-search', body: {'barcode': ean});
+    final data = (resp.data as List?) ?? [];
+
+    // mapeia para o formato que sua UI usa hoje:
+    // name / brand / calories_per_100g / protein_per_100g / carbs_per_100g / fat_per_100g / id
+    return data.map<Map<String, dynamic>>((raw) {
+      final j = Map<String, dynamic>.from(raw as Map);
+      return {
+        'id': j['id'],
+        'name': j['name'],
+        'brand': j['brand'],
+        'calories_per_100g': j['kcal'],
+        'protein_per_100g': j['protein_g'],
+        'carbs_per_100g': j['carbs_g'],
+        'fat_per_100g': j['fat_g'],
+      };
+    }).toList();
   }
 }

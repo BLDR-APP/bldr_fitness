@@ -80,34 +80,44 @@ class _NutritionScreenState extends State<NutritionScreen> {
     }
   }
 
-  void _showAddFoodModal(String mealType) {
-    showModalBottomSheet(
-        context: context,
-        backgroundColor: AppTheme.cardDark,
-        isScrollControlled: true,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-        builder: (context) => AddFoodModalWidget(
-            mealType: mealType,
-            onFoodAdded: () {
-              Navigator.pop(context);
-              _loadData();
-            }));
-  }
+void _showAddFoodModal(String mealType) async {
+  final result = await showModalBottomSheet(
+    context: context,
+    backgroundColor: AppTheme.cardDark,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+    builder: (context) => AddFoodModalWidget(
+      mealType: mealType,
+      onFoodAdded: () {
+        Navigator.pop(context);
+        _loadData();
+      },
+    ),
+  );
 
-  void _showFoodSearch() {
-    showModalBottomSheet(
-        context: context,
-        backgroundColor: AppTheme.cardDark,
-        isScrollControlled: true,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-        builder: (context) => NutritionSearchWidget(onFoodSelected: (foodItem) {
-              Navigator.pop(context);
-              _showPortionSelector(foodItem);
-            }));
+  // Se o AddFoodModal devolveu um EAN (String), abre a busca já com ele
+  if (result is String) {
+    _showFoodSearch(initialQuery: result);
   }
+}
 
+void _showFoodSearch({String? initialQuery}) {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: AppTheme.cardDark,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+    builder: (context) => NutritionSearchWidget(
+      initialQuery: initialQuery,                // <<< novo
+      onFoodSelected: (foodItem) {
+        Navigator.pop(context);
+        _showPortionSelector(foodItem);
+      },
+    ),
+  );
+}
   void _showPortionSelector(Map<String, dynamic> foodItem) {
     double quantity = 100;
 

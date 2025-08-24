@@ -17,13 +17,13 @@ class MealTimelineWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mealTypes = ['breakfast', 'lunch', 'dinner', 'snack'];
+    final mealTypes = ['café da manhã', 'almoço', 'jantar', 'lanche'];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Meal Timeline',
+          'Refeições',
           style: AppTheme.darkTheme.textTheme.titleLarge?.copyWith(
             color: AppTheme.textPrimary,
             fontWeight: FontWeight.w600,
@@ -103,7 +103,7 @@ class MealTimelineWidget extends StatelessWidget {
                     ),
                     SizedBox(width: 2.w),
                     Text(
-                      'Add ${_formatMealType(mealType)}',
+                      'Adicionar ${_formatMealType(mealType)}',
                       style: AppTheme.darkTheme.textTheme.bodyMedium?.copyWith(
                         color: AppTheme.textSecondary,
                         fontWeight: FontWeight.w500,
@@ -137,7 +137,7 @@ class MealTimelineWidget extends StatelessWidget {
                     ),
                     SizedBox(width: 2.w),
                     Text(
-                      'Add More',
+                      'Adicionar Mais',
                       style: AppTheme.darkTheme.textTheme.bodyMedium?.copyWith(
                         color: AppTheme.accentGold,
                         fontWeight: FontWeight.w600,
@@ -261,13 +261,13 @@ class MealTimelineWidget extends StatelessWidget {
 
   String _getMealIcon(String mealType) {
     switch (mealType) {
-      case 'breakfast':
+      case 'café da manhã':
         return 'wb_sunny';
-      case 'lunch':
+      case 'almoço':
         return 'wb_sunny';
-      case 'dinner':
+      case 'jantar':
         return 'nightlight';
-      case 'snack':
+      case 'lanche':
         return 'local_cafe';
       default:
         return 'restaurant';
@@ -276,13 +276,13 @@ class MealTimelineWidget extends StatelessWidget {
 
   Color _getMealColor(String mealType) {
     switch (mealType) {
-      case 'breakfast':
+      case 'café da manhã':
         return AppTheme.warningAmber;
-      case 'lunch':
+      case 'almoço':
         return AppTheme.successGreen;
-      case 'dinner':
+      case 'jantar':
         return Colors.purple;
-      case 'snack':
+      case 'lanche':
         return Colors.blue;
       default:
         return AppTheme.accentGold;

@@ -19,10 +19,10 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   String _errorMessage = '';
 
-  final Map<String, String> _mockCredentials = {
-    'test@example.com': 'password123',
-    'demo@app.com': 'demo123',
-  };
+  //final Map<String, String> _mockCredentials = {
+  //  'test@example.com': 'password123',
+  //  'demo@app.com': 'demo123',
+  //};
 
   Future<void> _handleLogin(String email, String password) async {
     setState(() {
@@ -140,6 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     SizedBox(height: 4.h), // respiro entre card e credenciais
 
                     // Mock Credentials Info (for testing)
+                   /*
                     Container(
                       margin: EdgeInsets.only(top: 20),
                       padding: EdgeInsets.all(16),
@@ -190,6 +191,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ),
                     ),
+                    */
 
                     Spacer(), // espaço flexível abaixo
                     SizedBox(height: 6.h), // 🔥 respiro fixo embaixo
